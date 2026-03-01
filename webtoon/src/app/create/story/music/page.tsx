@@ -607,12 +607,22 @@ export default function MusicPage() {
                         onClick={async () => {
                           if (!user) return;
                           setSaveStatus('saving');
+
+                          // 말풍선 편집 이미지가 있는지 확인
+                          let editedUrl: string | undefined = undefined;
+                          try {
+                            editedUrl = sessionStorage.getItem('edited-webtoon') || undefined;
+                          } catch (e) {
+                            console.warn('sessionStorage edited-webtoon error:', e);
+                          }
+
                           try {
                             const id = await saveCompletedWork({
                               userId: user.id,
                               musicUrl: audioUrl ?? undefined,
                               musicTitle,
                               musicGenre: genre,
+                              editedWebtoonUrl: editedUrl,
                             });
                             if (id) { setSavedId(id); setSaveStatus('saved'); }
                             else setSaveStatus('error');

@@ -16,6 +16,7 @@ interface StorySession {
   music_url: string | null;
   music_title: string | null;
   created_at: string;
+  edited_image_url?: string | null;
 }
 
 interface StoryPanel {
@@ -116,10 +117,10 @@ export default function ProjectDetailPage() {
       <main className="flex-1 max-w-5xl mx-auto w-full p-6 lg:p-12">
         {/* 네비게이션 */}
         <button 
-          onClick={() => router.push('/projects')}
+          onClick={() => router.push('/myworks')}
           className="flex items-center gap-2 text-gray-400 hover:text-gray-900 font-bold text-sm mb-8 transition-colors"
         >
-          <ArrowLeft className="w-4 h-4" /> 내 웹툰 갤러리로
+          <ArrowLeft className="w-4 h-4" /> 내 작품 갤러리로
         </button>
 
         {/* 헤더 (제목 및 오디오) */}
@@ -161,6 +162,33 @@ export default function ProjectDetailPage() {
             </div>
           )}
         </div>
+
+        {/* ── [신규] 말풍선 편집 완성본 표시 ── */}
+        {session.edited_image_url && (
+          <motion.div 
+            initial={{ opacity: 0, y: 20 }}
+            animate={{ opacity: 1, y: 0 }}
+            className="mb-16"
+          >
+            <div className="bg-white rounded-[2.5rem] overflow-hidden shadow-2xl shadow-indigo-900/10 border border-indigo-100 p-4 md:p-8">
+              <div className="flex items-center gap-2 mb-6 text-indigo-600">
+                <div className="w-2 h-2 rounded-full bg-indigo-600 animate-pulse" />
+                <span className="text-xs font-black uppercase tracking-widest">Webtoon Final Cut</span>
+              </div>
+              <img 
+                src={session.edited_image_url} 
+                alt="말풍선이 포함된 완성 웹툰" 
+                className="w-full h-auto rounded-3xl"
+              />
+            </div>
+            <div className="mt-8 border-t border-gray-100 pt-12">
+               <h2 className="text-xl font-black text-gray-900 mb-6 flex items-center gap-2">
+                 <div className="w-1.5 h-6 bg-indigo-600 rounded-full" />
+                 스토리 상세 보기
+               </h2>
+            </div>
+          </motion.div>
+        )}
 
         {/* 컷 만화 뷰어 */}
         {hasPanels ? (

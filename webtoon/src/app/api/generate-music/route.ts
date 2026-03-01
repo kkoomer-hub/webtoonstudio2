@@ -44,7 +44,8 @@ export async function POST(request: NextRequest) {
     const body: GenerateMusicRequest = await request.json();
     const { genre, lyrics, title } = body;
 
-    const apiKey = process.env.KIE_SUNO_API_KEY;
+    const rawApiKey = process.env.KIE_SUNO_API_KEY;
+    const apiKey = rawApiKey ? rawApiKey.replace(/['"]/g, '').trim() : '';
 
     // ── API 키 없으면 데모 모드 ───────────────────────────
     if (!apiKey) {
@@ -124,7 +125,8 @@ export async function GET(request: NextRequest) {
   if (!taskId) return NextResponse.json({ error: 'taskId 없음' }, { status: 400 });
 
   try {
-    const apiKey = process.env.KIE_SUNO_API_KEY;
+    const rawApiKey = process.env.KIE_SUNO_API_KEY;
+    const apiKey = rawApiKey ? rawApiKey.replace(/['"]/g, '').trim() : '';
     if (!apiKey) return NextResponse.json({ status: 'error', error: 'API 키 없음' });
 
     // ✅ 올바른 엔드포인트: /generate/record-info

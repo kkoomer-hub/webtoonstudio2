@@ -48,6 +48,7 @@ interface StoryState {
     musicUrl?: string;
     musicTitle?: string;
     musicGenre?: string;
+    editedWebtoonUrl?: string;
   }) => Promise<string | null>; // 저장된 sessionId 반환
 }
 
@@ -188,7 +189,7 @@ export const useStoryStore = create<StoryState>()(
       },
 
       // ── Supabase: 완성 작품 전체 저장 ────────────────
-      saveCompletedWork: async ({ userId, musicUrl, musicTitle, musicGenre }) => {
+      saveCompletedWork: async ({ userId, musicUrl, musicTitle, musicGenre, editedWebtoonUrl }) => {
         const { input, panels, panelImages } = get();
         const supabase = createClient();
 
@@ -206,7 +207,8 @@ export const useStoryStore = create<StoryState>()(
             music_url: musicUrl ?? null,
             music_title: musicTitle ?? null,
             music_genre: musicGenre ?? null,
-            cover_image_url: panelImages[0]?.imageUrl ?? null,
+            cover_image_url: editedWebtoonUrl ?? panelImages[0]?.imageUrl ?? null,
+            edited_image_url: editedWebtoonUrl ?? null,
             completed_at: new Date().toISOString(),
           })
           .select('id')

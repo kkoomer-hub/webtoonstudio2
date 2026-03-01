@@ -34,7 +34,7 @@ const NAV_LINKS = [
   { href: '/', label: '🏠 홈', icon: Home },
   { href: '/explore', label: '📚 웹툰 보기', icon: TrendingUp },
   { href: '/create/story', label: '✨ 이야기 만들기', icon: Wand2 },
-  { href: '/dashboard', label: '📊 내 작품', icon: LayoutDashboard },
+  { href: '/myworks', label: '📊 내 작품', icon: LayoutDashboard },
 ];
 
 export const GlobalHeader: React.FC = () => {
