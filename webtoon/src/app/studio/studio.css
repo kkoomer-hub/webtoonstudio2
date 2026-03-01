@@ -1,0 +1,96 @@
+@import url('https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800&family=Outfit:wght@400;500;600;700;800&display=swap');
+
+.studio-container {
+  font-family: 'Inter', 'Pretendard', sans-serif;
+  --studio-purple: #7d2ae8;
+  --studio-blue: #00c4cc;
+  --studio-pink: #ff66c4;
+  --studio-orange: #ff914d;
+  --studio-bg: #ffffff;
+  background-color: var(--studio-bg);
+  overflow-x: hidden;
+}
+
+.hero-gradient {
+  background: radial-gradient(circle at 50% 0%, rgba(125, 42, 232, 0.15) 0%, rgba(0, 196, 204, 0.05) 50%, rgba(255, 255, 255, 0) 100%);
+  position: absolute;
+  top: 0;
+  left: 0;
+  right: 0;
+  height: 800px;
+  pointer-events: none;
+  z-index: 0;
+}
+
+.premium-card {
+  background: white;
+  border-radius: 24px;
+  border: 1px solid rgba(0,0,0,0.05);
+  box-shadow: 0 4px 20px rgba(0,0,0,0.03);
+  transition: all 0.4s cubic-bezier(0.175, 0.885, 0.32, 1.275);
+  overflow: hidden;
+}
+
+.premium-card:hover {
+  transform: translateY(-8px);
+  box-shadow: 0 20px 40px rgba(0,0,0,0.08);
+}
+
+.glass-pill {
+  background: rgba(255, 255, 255, 0.8);
+  backdrop-filter: blur(8px);
+  border: 1px solid rgba(0,0,0,0.05);
+  border-radius: 999px;
+  padding: 8px 24px;
+}
+
+.gradient-text {
+  background: linear-gradient(135deg, #7d2ae8 0%, #00c4cc 100%);
+  -webkit-background-clip: text;
+  -webkit-text-fill-color: transparent;
+}
+
+.cta-button {
+  background: linear-gradient(135deg, #7d2ae8 0%, #a855f7 100%);
+  color: white;
+  padding: 12px 32px;
+  border-radius: 12px;
+  font-weight: 600;
+  transition: all 0.3s ease;
+  box-shadow: 0 4px 15px rgba(125, 42, 232, 0.3);
+}
+
+.cta-button:hover {
+  transform: scale(1.05);
+  box-shadow: 0 8px 25px rgba(125, 42, 232, 0.4);
+}
+
+/* Animations */
+@keyframes float {
+  0% { transform: translateY(0px); }
+  50% { transform: translateY(-10px); }
+  100% { transform: translateY(0px); }
+}
+
+.animate-float {
+  animation: float 4s ease-in-out infinite;
+}
+
+.masonry-grid {
+  display: grid;
+  grid-template-columns: repeat(12, 1fr);
+  gap: 24px;
+}
+
+.card-span-8 { grid-column: span 8; }
+.card-span-4 { grid-column: span 4; }
+
+@media (max-width: 1024px) {
+  .card-span-8, .card-span-4 { grid-column: span 12; }
+}
+
+.tab-active {
+  background: white;
+  color: var(--studio-purple);
+  box-shadow: 0 4px 12px rgba(0,0,0,0.05);
+}
