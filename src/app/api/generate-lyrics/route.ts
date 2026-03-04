@@ -29,17 +29,28 @@ export async function POST(request: NextRequest) {
 ${story}
 
 **가사 작성 가이드:**
-1. 전체 길이는 1분 내외의 노래에 적합하도록 짧고 강렬하게 작성하세요.
-2. [Verse], [Chorus] 등의 형식을 포함하세요.
-3. 초등학생 아이들이 따라 부르기 쉬운 단어와 리듬감을 사용하세요.
-4. 웹툰의 핵심 주제와 주인공의 감정이 잘 드러나야 합니다.
+1. 전체 길이는 1분 30초 내외의 노래에 적합하도록 충분한 분량으로 작성하세요.
+2. [Verse 1], [Chorus], [Verse 2], [Chorus], [Bridge], [Chorus], [Outro] 형식을 포함하여 기승전결이 뚜렷하게 작성하세요.
+3. 초등학생 아이들이 신나게 따라 부를 수 있는 밝은 단어와 리듬감을 사용하세요.
+4. 웹툰의 전체 줄거리와 주인공의 용기, 우정, 모험 등의 테마가 잘 녹아들어야 합니다.
 5. 반드시 가사 텍스트만 응답하세요.
 
 **작성 예시:**
 [Verse 1]
-푸른 하늘 아래 우리 친구 철수
-학교 운동장에서 공을 차네
-...`;
+햇살 눈부신 아침, 가방 메고 출동!
+학교 가는 길에 만난 신비한 친구
+...
+[Chorus]
+함께라면 두렵지 않아, 고고!
+우리의 모험이 시작될 거야
+...
+[Verse 2]
+...
+[Bridge]
+...
+[Outro]
+...
+`;
 
     const geminiRes = await fetch(
       `https://generativelanguage.googleapis.com/v1beta/models/gemini-2.5-flash:generateContent?key=${apiKey}`,
