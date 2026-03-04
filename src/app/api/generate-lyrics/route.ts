@@ -55,27 +55,47 @@ ${story}
 ... (이와 같은 충분한 분량으로)
 `;
 
-    const geminiRes = await fetch(
-      `https://generativelanguage.googleapis.com/v1beta/models/gemini-2.5-flash:generateContent?key=${apiKey}`,
-      {
-        method: 'POST',
-        headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({
-          contents: [{ parts: [{ text: prompt }] }],
-          generationConfig: {
-            temperature: 0.8,
-            maxOutputTokens: 2048,
-          },
-        }),
+    const validateLyrics = (text: string) => {
+      const requiredSections = ['[Verse', '[Chorus', '[Outro]'];
+      const hasSections = requiredSections.every(section => text.includes(section));
+      const looksComplete = text.trim().endsWith(']') || text.trim().endsWith('!') || text.trim().endsWith('.') || text.trim().endsWith('~');
+      return hasSections && looksComplete;
+    };
+
+    let lyrics = '';
+    let retryCount = 0;
+    const maxRetries = 2;
+
+    while (retryCount <= maxRetries) {
+      const geminiRes = await fetch(
+        `https://generativelanguage.googleapis.com/v1beta/models/gemini-1.5-flash:generateContent?key=${apiKey}`,
+        {
+          method: 'POST',
+          headers: { 'Content-Type': 'application/json' },
+          body: JSON.stringify({
+            contents: [{ parts: [{ text: prompt }] }],
+            generationConfig: {
+              temperature: 0.8,
+              maxOutputTokens: 2048,
+            },
+          }),
+        }
+      );
+
+      if (!geminiRes.ok) {
+        throw new Error('Gemini API call failed');
       }
-    );
 
-    if (!geminiRes.ok) {
-      throw new Error('Gemini API call failed');
+      const data = await geminiRes.json();
+      lyrics = data?.candidates?.[0]?.content?.parts?.[0]?.text ?? '';
+
+      if (validateLyrics(lyrics)) {
+        break;
+      }
+      
+      console.warn(`[Retry ${retryCount + 1}] Lyrics incomplete or missing sections. Retrying...`);
+      retryCount++;
     }
-
-    const data = await geminiRes.json();
-    const lyrics = data?.candidates?.[0]?.content?.parts?.[0]?.text ?? '';
 
     return NextResponse.json({ lyrics });
   } catch (error) {
