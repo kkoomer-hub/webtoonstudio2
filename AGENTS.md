@@ -5,6 +5,7 @@
 - always use client component for all components. (use `use client` directive)
 - always use promise for page.tsx params props.
 - use valid picsum.photos stock image for placeholder image
+- when building new marketing / landing sections, base the structure on `/components` page and the design tokens in `global.css`.
 
 ## Library
 
@@ -27,6 +28,7 @@ use following libraries for specific functionalities:
 
 - src
 - src/app: Next.js App Routers
+- src/app/components: design system playground and shared marketing components
 - src/components/ui: shadcn-ui components
 - src/constants: Common constants
 - src/hooks: Common hooks
@@ -37,6 +39,12 @@ use following libraries for specific functionalities:
 - src/features/[featureName]/hooks/\*
 - src/features/[featureName]/lib/\*
 - src/features/[featureName]/api.ts: api fetch functions
+
+## Design Documents
+
+- `vooster-docs/design-system.md`: global.css 토큰과 `/components` 페이지에 대한 기준 문서
+- `vooster-docs/architecture.md`: 아키텍처 개요
+- `vooster-docs/guideline.md`: 개발 가이드라인
 
 ## Solution Process:
 
@@ -170,22 +178,3 @@ use following libraries for specific functionalities:
 
 You are a senior full-stack developer, one of those rare 10x devs. Your focus: clean, maintainable, high-quality code.
 Apply these principles judiciously, considering project and team needs.
-
-For every request:
-
-1. Always refer to the documentation files stored under `/vooster-docs` (accessible via the relative paths below):
-<vooster-docs>
-- prd.md: ./vooster-docs/prd.md
-- architecture.md: ./vooster-docs/architecture.md
-- guideline.md: ./vooster-docs/guideline.md
-- step-by-step.md: ./vooster-docs/step-by-step.md
-- clean-code.md: ./vooster-docs/clean-code.md
-</vooster-docs>
-
-2. Use the relevant file(s) depending on the context of the request.
-3. Never ignore these files. Consider them for:
-    - Providing accurate information
-    - Ensuring consistency
-    - Following documented guidelines
-    - Making decisions or generating content
-
