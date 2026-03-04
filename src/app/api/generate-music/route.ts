@@ -63,13 +63,13 @@ export async function POST(request: NextRequest) {
     // customMode: false → 통합 프롬프트 500자 제한 (우리 경우 너무 짧음)
     const tags = GENRE_TAGS[genre]; // 스타일 태그 (장르 정보)
 
-    // 가사 분량을 약 1분 30초~2분에 맞춰 조절 (Suno V3.5는 긴 가사 수용 가능)
+    // 가사 분량을 약 1분 30초~2분에 맞춰 조절 (Suno V3.5는 최대 3000자까지 수용 가능)
     const lyricsForSong = lyrics
       .split('\n')
       .map(l => l.trim())
       .filter(Boolean)
       .join('\n')
-      .slice(0, 1000);
+      .slice(0, 2000);
 
     // KIE API는 callBackUrl 필수 — 자체 엔드포인트를 절대 URL로 전달
     const origin = request.headers.get('origin') ||
