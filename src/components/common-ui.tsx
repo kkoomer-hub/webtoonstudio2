@@ -1,6 +1,7 @@
 "use client";
 
 import React from "react";
+import Image from "next/image";
 import { Search } from "lucide-react";
 
 export const SearchBar = () => {
@@ -39,10 +40,12 @@ export const WebtoonCard: React.FC<WebtoonCardProps> = ({
       )}
       <div className="bg-gray-200 aspect-[3/4] w-full relative overflow-hidden">
         {imageUrl ? (
-          <img
+          <Image
             src={imageUrl}
             alt={title}
-            className="webtoon-card-image hover:scale-105 transition-transform duration-300"
+            fill
+            unoptimized
+            className="webtoon-card-image hover:scale-105 transition-transform duration-300 object-cover"
           />
         ) : (
           <div className="w-full h-full flex items-center justify-center text-soft bg-gradient-to-br from-gray-100 to-gray-200">

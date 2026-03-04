@@ -2,6 +2,7 @@
 
 import React, { useEffect, useState } from 'react';
 import Link from 'next/link';
+import Image from 'next/image';
 import { motion } from 'framer-motion';
 import { GlobalHeader } from '@/components/layout/header';
 import { GlobalFooter } from '@/components/layout/footer';
@@ -111,10 +112,12 @@ export default function MyWorksPage() {
                   <Card hover className="h-full flex flex-col cursor-pointer transition-shadow hover:shadow-xl hover:shadow-indigo-100/50">
                     <div className="aspect-[3/4] rounded-t-[1.35rem] bg-gray-50 overflow-hidden relative">
                       {session.cover_image_url ? (
-                        <img
+                        <Image
                           src={session.cover_image_url}
                           alt={session.title || '웹툰 표지'}
-                          className="w-full h-full object-cover"
+                          fill
+                          unoptimized
+                          className="object-cover"
                         />
                       ) : (
                         <div className="w-full h-full flex items-center justify-center text-gray-300 bg-gray-100 font-medium">

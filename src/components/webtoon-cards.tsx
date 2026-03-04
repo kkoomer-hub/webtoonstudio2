@@ -1,6 +1,7 @@
 'use client';
 
 import React from 'react';
+import Image from 'next/image';
 import { cn } from '@/lib/utils';
 import type { Webtoon, StudioProject } from '@/types';
 import { Badge, Avatar, ProgressBar, Card } from '@/components/ui-primitives';
@@ -51,10 +52,12 @@ export const WebtoonCard: React.FC<WebtoonCardProps> = ({
       >
         <div className="w-14 h-20 rounded-xl overflow-hidden bg-gradient-to-br from-indigo-100 to-purple-100 flex-shrink-0 relative shadow-sm">
           {webtoon.coverUrl ? (
-            <img
+            <Image
               src={webtoon.coverUrl}
               alt={webtoon.title}
-              className="w-full h-full object-cover"
+              fill
+              unoptimized
+              className="object-cover"
             />
           ) : (
             <div className="w-full h-full flex items-center justify-center text-indigo-300">
@@ -116,10 +119,12 @@ export const WebtoonCard: React.FC<WebtoonCardProps> = ({
       >
         <div className="w-full aspect-[3/4] rounded-2xl overflow-hidden bg-gradient-to-br from-indigo-100 to-purple-100 shadow-sm group-hover:shadow-xl transition-all duration-300 group-hover:-translate-y-1">
           {webtoon.coverUrl ? (
-            <img
+            <Image
               src={webtoon.coverUrl}
               alt={webtoon.title}
-              className="w-full h-full object-cover"
+              fill
+              unoptimized
+              className="object-cover"
             />
           ) : (
             <div className="w-full h-full flex items-center justify-center text-indigo-200">
@@ -175,10 +180,12 @@ export const WebtoonCard: React.FC<WebtoonCardProps> = ({
     >
       <div className="relative aspect-[3/4] rounded-2xl overflow-hidden bg-gradient-to-br from-indigo-100 to-purple-100 shadow-sm group-hover:shadow-2xl transition-all duration-300 group-hover:-translate-y-2">
         {webtoon.coverUrl ? (
-          <img
+          <Image
             src={webtoon.coverUrl}
             alt={webtoon.title}
-            className="w-full h-full object-cover group-hover:scale-105 transition-transform duration-500"
+            fill
+            unoptimized
+            className="object-cover group-hover:scale-105 transition-transform duration-500"
           />
         ) : (
           <div className="w-full h-full flex flex-col items-center justify-center gap-2 text-indigo-300">
@@ -280,10 +287,12 @@ export const ProjectCard: React.FC<ProjectCardProps> = ({
       {/* Thumbnail */}
       <div className="relative aspect-[4/3] bg-gradient-to-br from-indigo-50 to-purple-50 overflow-hidden">
         {project.thumbnailUrl ? (
-          <img
+          <Image
             src={project.thumbnailUrl}
             alt={project.title}
-            className="w-full h-full object-cover group-hover:scale-105 transition-transform duration-500"
+            fill
+            unoptimized
+            className="object-cover group-hover:scale-105 transition-transform duration-500"
           />
         ) : (
           <div className="w-full h-full flex flex-col items-center justify-center gap-3 text-indigo-200">
@@ -391,10 +400,12 @@ export const RankingCard: React.FC<RankingCardProps> = ({
       </span>
       <div className="w-12 h-16 rounded-xl overflow-hidden bg-indigo-50 flex-shrink-0">
         {webtoon.coverUrl ? (
-          <img
+          <Image
             src={webtoon.coverUrl}
             alt={webtoon.title}
-            className="w-full h-full object-cover"
+            fill
+            unoptimized
+            className="object-cover"
           />
         ) : (
           <div className="w-full h-full flex items-center justify-center text-indigo-200">

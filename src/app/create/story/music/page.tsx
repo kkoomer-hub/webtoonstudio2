@@ -3,6 +3,7 @@
 import React, { useEffect, useRef, useState, useCallback } from 'react';
 import { useRouter } from 'next/navigation';
 import Link from 'next/link';
+import Image from 'next/image';
 import { motion, AnimatePresence } from 'framer-motion';
 import {
   Music, Play, Pause, Volume2, VolumeX,
@@ -263,10 +264,13 @@ const WebtoonPreview: React.FC = () => {
     return (
       <div className="space-y-2">
         <div className="rounded-2xl overflow-hidden border border-indigo-400/30 shadow-xl shadow-indigo-900/40">
-          <img
+          <Image
             src={editedUrl}
             alt="말풍선이 추가된 완성 웹툰"
-            className="w-full object-contain"
+            width={800}
+            height={1200}
+            unoptimized
+            className="w-full h-auto object-contain"
           />
         </div>
         <p className="text-center text-xs text-yellow-400/80 flex items-center justify-center gap-1">
@@ -284,7 +288,13 @@ const WebtoonPreview: React.FC = () => {
         return (
           <div key={i} className="relative aspect-square bg-white/5">
             {img?.status === 'done' && img.imageUrl ? (
-              <img src={img.imageUrl} alt={`${i + 1}컷`} className="w-full h-full object-cover" />
+              <Image 
+                src={img.imageUrl} 
+                alt={`${i + 1}컷`} 
+                fill 
+                unoptimized 
+                className="object-cover" 
+              />
             ) : (
               <div className="w-full h-full flex items-center justify-center text-white/20 text-xs font-bold">
                 {i + 1}컷

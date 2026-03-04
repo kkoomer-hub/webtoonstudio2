@@ -53,7 +53,7 @@ export const GlobalHeader: React.FC = () => {
   useEffect(() => {
     setCurrentUserFromAuth(authUser as Parameters<typeof setCurrentUserFromAuth>[0]);
     fetchWebtoons();
-  }, [authUser]);
+  }, [authUser, setCurrentUserFromAuth, fetchWebtoons]);
 
   // Keyboard shortcut: Cmd/Ctrl+K to focus search
   useEffect(() => {

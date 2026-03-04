@@ -2,6 +2,7 @@
 
 import React, { useEffect, useState } from 'react';
 import { useParams, useRouter } from 'next/navigation';
+import Image from 'next/image';
 import { GlobalHeader } from '@/components/layout/header';
 import { createClient } from '@/lib/supabase/client';
 import { ArrowLeft, Play, Pause, Music4 } from 'lucide-react';
@@ -175,9 +176,12 @@ export default function ProjectDetailPage() {
                 <div className="w-2 h-2 rounded-full bg-indigo-600 animate-pulse" />
                 <span className="text-xs font-black uppercase tracking-widest">Webtoon Final Cut</span>
               </div>
-              <img 
+              <Image 
                 src={session.edited_image_url} 
                 alt="말풍선이 포함된 완성 웹툰" 
+                width={1200}
+                height={800}
+                unoptimized
                 className="w-full h-auto rounded-3xl"
               />
             </div>
@@ -203,10 +207,12 @@ export default function ProjectDetailPage() {
               >
                 <div className="bg-gray-50 aspect-square flex items-center justify-center relative p-8">
                   {p.image_url ? (
-                    <img 
+                    <Image 
                       src={p.image_url} 
                       alt={`패널 ${p.panel_number} 이미지`} 
-                      className="w-full h-full object-cover rounded-xl shadow-sm border border-gray-200"
+                      fill
+                      unoptimized
+                      className="object-cover rounded-xl shadow-sm border border-gray-200"
                     />
                   ) : (
                     <div className="text-gray-300 font-medium">이미지가 없습니다.</div>

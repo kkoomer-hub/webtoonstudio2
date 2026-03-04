@@ -13,7 +13,7 @@ export default function TermsPage() {
             서비스의 목적
           </h2>
           <p>
-            WebtoonStudio 서비스 이용약관은 어린이를 위한 AI 기반 웹툰 창작 플랫폼 'WebtoonStudio'(이하 '서비스')를 이용하시는 회원 여러분이 서비스를 더욱 즐겁고 안전하게 이용하실 수 있도록 돕기 위해 만들어졌습니다.
+            WebtoonStudio 서비스 이용약관은 어린이를 위한 AI 기반 웹툰 창작 플랫폼 &apos;WebtoonStudio&apos;(이하 &apos;서비스&apos;)를 이용하시는 회원 여러분이 서비스를 더욱 즐겁고 안전하게 이용하실 수 있도록 돕기 위해 만들어졌습니다.
           </p>
         </div>
 

@@ -1,6 +1,7 @@
 'use client';
 
 import React from 'react';
+import Image from 'next/image';
 import { cn } from '@/lib/utils';
 
 // =========================================================
@@ -160,7 +161,13 @@ export const Avatar: React.FC<AvatarProps> = ({
       )}
     >
       {src ? (
-        <img src={src} alt={name} className="w-full h-full object-cover" />
+        <Image 
+          src={src} 
+          alt={name || 'Avatar'} 
+          fill 
+          unoptimized 
+          className="object-cover" 
+        />
       ) : (
         <span>{initials}</span>
       )}

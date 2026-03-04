@@ -2,6 +2,7 @@
 
 import React, { useState, useEffect } from 'react';
 import { useRouter } from 'next/navigation';
+import Image from 'next/image';
 import { GlobalHeader } from '@/components/layout/header';
 import { createClient } from '@/lib/supabase/client';
 import { useAuth } from '@/hooks/use-auth';
@@ -292,7 +293,13 @@ export default function ProjectsPage() {
                       >
                          <div className="flex-1 overflow-hidden relative bg-gray-50 flex items-center justify-center">
                             {proj.cover_image_url ? (
-                               <img src={proj.cover_image_url} className="w-full h-full object-cover group-hover:scale-110 transition-transform duration-700" alt={proj.title} />
+                               <Image 
+                                 src={proj.cover_image_url} 
+                                 alt={proj.title || '프로젝트 썸네일'} 
+                                 fill 
+                                 unoptimized 
+                                 className="object-cover group-hover:scale-110 transition-transform duration-700" 
+                               />
                             ) : (
                                <ImagePlus className="w-10 h-10 text-gray-300" />
                             )}

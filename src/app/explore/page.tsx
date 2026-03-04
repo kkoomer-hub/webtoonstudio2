@@ -158,7 +158,7 @@ export default function ExplorePage() {
               <span className="text-xs font-semibold text-gray-500">필터:</span>
               {searchQuery && (
                 <Tag color="indigo" onRemove={() => setSearchQuery('')}>
-                  검색: "{searchQuery}"
+                  검색: &quot;{searchQuery}&quot;
                 </Tag>
               )}
               {selectedGenre && (

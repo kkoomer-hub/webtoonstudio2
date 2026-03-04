@@ -30,13 +30,13 @@ export function useAuth() {
     );
 
     return () => subscription.unsubscribe();
-  }, []);
+  }, [supabase.auth]);
 
   const signOut = useCallback(async () => {
     await supabase.auth.signOut();
     setUser(null);
     window.location.href = '/login';
-  }, []);
+  }, [supabase.auth]);
 
   return { user, loading, signOut };
 }
