@@ -328,18 +328,52 @@ export default function MusicPage() {
   const [isDemoMode, setIsDemoMode] = useState(false);
   const [saveStatus, setSaveStatus] = useState<'idle' | 'saving' | 'saved' | 'error'>('idle');
   const [savedId, setSavedId] = useState<string | null>(null);
+  const [isLyricsGenerating, setIsLyricsGenerating] = useState(false);
   const pollingRef = useRef<ReturnType<typeof setInterval> | null>(null);
 
-  // 패널 이야기를 가사 기본값으로 설정
+  // ── 가사 생성 AI 호출 ──
+  const handleGenerateLyrics = useCallback(async () => {
+    if (!panels || panels.length === 0) return;
+    setIsLyricsGenerating(true);
+    try {
+      const storySummary = panels.map((p, i) => `${i + 1}컷: ${p.story}`).join('\n');
+      const res = await fetch('/api/generate-lyrics', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({
+          protagonist: input.protagonist,
+          location: input.location,
+          incident: input.incident,
+          story: storySummary,
+        }),
+      });
+      const data = await res.json();
+      if (data.lyrics) {
+        setLyrics(data.lyrics);
+      }
+    } catch (error) {
+      console.error('Lyrics generation failed:', error);
+      // Fallback: 기존처럼 컷 나열
+      const storyText = panels.map((p, i) => `[${i + 1}컷]\n${p.story}`).join('\n\n');
+      setLyrics(storyText);
+    } finally {
+      setIsLyricsGenerating(false);
+    }
+  }, [panels, input]);
+
+  // 페이지 진입 시 가사 자동 생성
   useEffect(() => {
     if (!panels || panels.length === 0) {
       router.replace('/create/story');
       return;
     }
-    const storyText = panels.map((p, i) => `[${i + 1}컷]\n${p.story}`).join('\n\n');
-    setLyrics(storyText);
+    
+    // 이미 가사가 있으면 (사용자 수정 등) 자동 생성 건너뜀
+    if (!lyrics) {
+      handleGenerateLyrics();
+    }
     setMusicTitle(`${input.protagonist}의 웹툰 주제가`);
-  }, [panels, input, router]);
+  }, [panels, input, router, handleGenerateLyrics, lyrics]);
 
   // 폴링 정리
   useEffect(() => () => { if (pollingRef.current) clearInterval(pollingRef.current); }, []);
@@ -529,18 +563,37 @@ export default function MusicPage() {
 
             {/* 가사 */}
             <div className="space-y-1.5">
-              <label htmlFor="lyrics" className="text-xs font-bold text-white/60">
-                가사 / 이야기 내용
-                <span className="ml-2 text-white/30 font-normal">(이야기에서 자동으로 채워집니다)</span>
-              </label>
-              <textarea
-                id="lyrics"
-                value={lyrics}
-                onChange={(e) => setLyrics(e.target.value)}
-                rows={8}
-                className="w-full bg-white/5 border border-white/10 rounded-xl px-4 py-3 text-sm text-white placeholder:text-white/30 outline-none focus:border-yellow-400/50 resize-none leading-relaxed"
-                placeholder="음악에 담을 이야기나 가사를 입력하세요..."
-              />
+              <div className="flex items-center justify-between">
+                <label htmlFor="lyrics" className="text-xs font-bold text-white/60">
+                  가사 / 이야기 내용
+                </label>
+                <button 
+                  onClick={handleGenerateLyrics}
+                  disabled={isLyricsGenerating}
+                  className="text-[10px] font-black text-yellow-400 bg-yellow-400/10 px-2 py-1 rounded-lg border border-yellow-400/20 hover:bg-yellow-400/20 transition-all flex items-center gap-1"
+                >
+                  {isLyricsGenerating ? (
+                    <><Loader2 className="w-2.5 h-2.5 animate-spin" /> 개사 중...</>
+                  ) : (
+                    <><Sparkles className="w-2.5 h-2.5" /> AI로 가사 다시 쓰기</>
+                  )}
+                </button>
+              </div>
+              <div className="relative group">
+                <textarea
+                  id="lyrics"
+                  value={lyrics}
+                  onChange={(e) => setLyrics(e.target.value)}
+                  rows={8}
+                  className="w-full bg-white/5 border border-white/10 rounded-xl px-4 py-3 text-sm text-white placeholder:text-white/30 outline-none focus:border-yellow-400/50 resize-none leading-relaxed"
+                  placeholder="음악에 담을 이야기나 가사를 입력하세요..."
+                />
+                {isLyricsGenerating && (
+                  <div className="absolute inset-0 bg-indigo-950/40 backdrop-blur-[2px] rounded-xl flex items-center justify-center">
+                    <Loader2 className="w-8 h-8 text-yellow-400 animate-spin" />
+                  </div>
+                )}
+              </div>
             </div>
 
             {/* 생성 버튼 */}
