@@ -4,6 +4,7 @@ import React, { useEffect, useState } from 'react';
 import Link from 'next/link';
 import { motion } from 'framer-motion';
 import { GlobalHeader } from '@/components/layout/header';
+import { GlobalFooter } from '@/components/layout/footer';
 import { createClient } from '@/lib/supabase/client';
 import { useAuth } from '@/hooks/use-auth';
 import { BookOpen, Calendar, Clock, Sparkles, Music4 } from 'lucide-react';
@@ -152,6 +153,7 @@ export default function MyWorksPage() {
           </div>
         )}
       </main>
+      <GlobalFooter />
     </div>
   );
 }

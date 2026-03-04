@@ -18,6 +18,7 @@ import {
   Shield,
 } from 'lucide-react';
 import { GlobalHeader } from '@/components/layout/header';
+import { GlobalFooter } from '@/components/layout/footer';
 import { WebtoonCard } from '@/components/webtoon-cards';
 import { Button, Badge, Tag } from '@/components/ui-primitives';
 import { useWebtoonStore } from '@/stores/webtoon-store';
@@ -403,63 +404,7 @@ export default function HomePage() {
         </div>
       </section>
 
-      {/* ===== Footer ===== */}
-      <footer className="bg-white border-t border-gray-100 py-16 px-4">
-        <div className="max-w-6xl mx-auto grid grid-cols-1 md:grid-cols-5 gap-10">
-          {/* Brand */}
-          <div className="md:col-span-2">
-            <Link href="/" className="flex items-center gap-2 mb-4">
-              <div className="w-8 h-8 rounded-xl bg-gradient-to-br from-indigo-600 to-purple-600 flex items-center justify-center">
-                <Sparkles className="w-4 h-4 text-white" />
-              </div>
-              <span className="font-black text-lg text-gray-900">WebtoonStudio</span>
-            </Link>
-            <p className="text-sm text-gray-500 leading-relaxed max-w-xs">
-              AI 기반 웹툰 제작 플랫폼. 모든 창작자의 꿈을 현실로 만듭니다.
-            </p>
-            <div className="flex gap-2 mt-4">
-              {['TW', 'IG', 'YT'].map((s) => (
-                <div
-                  key={s}
-                  className="w-9 h-9 rounded-xl bg-gray-100 flex items-center justify-center text-xs font-bold text-gray-500 hover:bg-indigo-600 hover:text-white transition-all cursor-pointer"
-                >
-                  {s}
-                </div>
-              ))}
-            </div>
-          </div>
-
-          {[
-            { title: '서비스', items: ['스튜디오', '탐색', '대시보드', '요금제'] },
-            { title: '리소스', items: ['튜토리얼', '에셋 라이브러리', 'API 문서', '커뮤니티'] },
-            { title: '회사', items: ['소개', '채용', '뉴스룸', '고객센터'] },
-          ].map((col) => (
-            <div key={col.title}>
-              <h4 className="text-xs font-black uppercase tracking-widest text-gray-400 mb-4">
-                {col.title}
-              </h4>
-              <ul className="space-y-3">
-                {col.items.map((item) => (
-                  <li
-                    key={item}
-                    className="text-sm text-gray-500 hover:text-indigo-600 cursor-pointer transition-colors font-medium"
-                  >
-                    {item}
-                  </li>
-                ))}
-              </ul>
-            </div>
-          ))}
-        </div>
-        <div className="max-w-6xl mx-auto mt-12 pt-6 border-t border-gray-100 flex flex-wrap items-center justify-between gap-4 text-xs text-gray-400">
-          <span>© 2026 WebtoonStudio Corp. All rights reserved.</span>
-          <div className="flex gap-4">
-            <span className="hover:text-gray-600 cursor-pointer">이용약관</span>
-            <span className="hover:text-gray-600 cursor-pointer">개인정보처리방침</span>
-            <span className="hover:text-gray-600 cursor-pointer">쿠키 정책</span>
-          </div>
-        </div>
-      </footer>
+      <GlobalFooter />
     </div>
   );
 }

@@ -13,6 +13,7 @@ import {
   BookOpen,
 } from 'lucide-react';
 import { GlobalHeader, PageHeader, GenreFilter } from '@/components/layout/header';
+import { GlobalFooter } from '@/components/layout/footer';
 import { WebtoonCard } from '@/components/webtoon-cards';
 import { Button, Input, Tag, Spinner, EmptyState } from '@/components/ui-primitives';
 import { useWebtoonStore } from '@/stores/webtoon-store';
@@ -245,6 +246,7 @@ export default function ExplorePage() {
           </div>
         )}
       </main>
+      <GlobalFooter />
     </div>
   );
 }

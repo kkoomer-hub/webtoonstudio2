@@ -1,6 +1,7 @@
 'use client';
 
 import React, { useState } from 'react';
+import Link from 'next/link';
 import { SearchBar, WebtoonCard, EpisodeItem, UserMenu } from '@/components/common-ui';
 import { GlobalHeader } from '@/components/layout/header';
 
@@ -459,9 +460,9 @@ export default function ComponentsPage() {
         <div className="page-footer-bottom">
           <span>© {new Date().getFullYear()} Webtoon Studio. All rights reserved.</span>
           <div className="page-footer-bottom-links">
-            <span>개인정보 처리방침</span>
-            <span>이용약관</span>
-            <span>쿠키 정책</span>
+            <Link href="/privacy">개인정보 처리방침</Link>
+            <Link href="/terms">이용약관</Link>
+            <Link href="/cookies">쿠키 정책</Link>
           </div>
         </div>
       </footer>
