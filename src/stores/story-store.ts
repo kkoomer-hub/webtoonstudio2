@@ -38,6 +38,7 @@ interface StoryState {
   applyImageResults: (results: PanelImageResult[]) => void;
   reset: () => void;
   resetImages: () => void;
+  clearLocalCache: () => void;
 
   // Supabase 연동
   saveSessionToDB: (userId: string) => Promise<string | null>;
@@ -96,10 +97,24 @@ export const useStoryStore = create<StoryState>()(
           return { panelImages: next };
         }),
 
-      reset: () =>
-        set({ input: emptyInput, panels: [], panelImages: emptyPanelImages(), sessionId: null }),
+      reset: () => {
+        get().clearLocalCache();
+        set({ input: emptyInput, panels: [], panelImages: emptyPanelImages(), sessionId: null });
+      },
 
-      resetImages: () => set({ panelImages: emptyPanelImages() }),
+      resetImages: () => {
+        get().clearLocalCache();
+        set({ panelImages: emptyPanelImages() });
+      },
+
+      clearLocalCache: () => {
+        try {
+          sessionStorage.removeItem('edited-webtoon');
+          // 추가적인 캐시 항목이 있다면 여기서 삭제
+        } catch (e) {
+          console.warn('[clearLocalCache] Failed:', e);
+        }
+      },
 
       // ── Supabase: 세션 저장 ──────────────────────────
       saveSessionToDB: async (userId: string) => {
@@ -251,6 +266,7 @@ export const useStoryStore = create<StoryState>()(
       partialize: (state) => ({
         input: state.input,
         panels: state.panels,
+        panelImages: state.panelImages,
         sessionId: state.sessionId,
       }),
     }

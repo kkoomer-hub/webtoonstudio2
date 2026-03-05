@@ -185,10 +185,11 @@ const ImageCard: React.FC<ImageCardProps> = ({
 // =========================================================
 export default function StoryImagesPage() {
   const router = useRouter();
-  const { input, panels, panelImages, applyImageResults, updatePanelImage, resetImages } =
+  const { input, panels, panelImages, applyImageResults, updatePanelImage, resetImages, clearLocalCache } =
     useStoryStore();
 
   const [hasStarted, setHasStarted] = useState(false);
+  const [isTransitioning, setIsTransitioning] = useState(false);
 
   // 패널이 없으면 결과 페이지로 리다이렉트
   useEffect(() => {
@@ -207,8 +208,9 @@ export default function StoryImagesPage() {
   const generateAll = async () => {
     if (!panels || panels.length === 0) return;
 
-    // 모든 패널 idle로 초기화
+    // 모든 패널 idle로 초기화 및 에디터 캐시 삭제
     panels.forEach((_, i) => updatePanelImage(i, { status: 'idle', imageUrl: '' }));
+    clearLocalCache();
 
     const prompts = panels.map((p) => p.image_prompt);
     let prevImageUrl = ''; // 이전 패널 이미지 (참조용)
@@ -283,6 +285,10 @@ export default function StoryImagesPage() {
       });
       const data: { images: PanelImageResult[]; error?: string } = await res.json();
       if (!res.ok || data.error) throw new Error(data.error || '이미지 생성 실패');
+      
+      // 이미지 수정 시 이전 편집본(캐시) 강제 삭제
+      clearLocalCache();
+      
       applyImageResults(data.images);
     } catch (err) {
       updatePanelImage(panelIndex, {
@@ -297,6 +303,7 @@ export default function StoryImagesPage() {
   const allDone = panelImages.every((s) => s.status === 'done' || s.status === 'error');
 
   const handleRegenerateAll = () => {
+    clearLocalCache();
     resetImages();
     generateAll();
   };
@@ -403,11 +410,17 @@ export default function StoryImagesPage() {
             {/* 주제가 만들기 */}
             {allDone && (
               <Button variant="primary" size="md"
-                onClick={() => router.push('/create/story/music')}
-                leftIcon={<Music className="w-4 h-4" />}
+                onClick={async () => {
+                  setIsTransitioning(true);
+                  // 잠깐 기분 좋은 딜레이 (저장되는 느낌)
+                  await new Promise(resolve => setTimeout(resolve, 600));
+                  router.push('/create/story/music');
+                }}
+                disabled={isTransitioning}
+                leftIcon={isTransitioning ? <RefreshCw className="w-4 h-4 animate-spin" /> : <Music className="w-4 h-4" />}
                 id="go-to-music-btn"
                 className="bg-gradient-to-r from-yellow-400 to-orange-400 text-yellow-900 border-none shadow-lg">
-                🎵 주제가 만들기!
+                {isTransitioning ? '저장 중...' : '🎵 주제가 만들기!'}
               </Button>
             )}
 

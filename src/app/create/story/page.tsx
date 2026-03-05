@@ -115,7 +115,7 @@ const LoadingDots: React.FC = () => (
 // =========================================================
 export default function StoryFormPage() {
   const router = useRouter();
-  const { input, setInput, setPanels, resetImages } = useStoryStore();
+  const { input, setInput, setPanels, resetImages, clearLocalCache } = useStoryStore();
 
   const [protagonist, setProtagonist] = useState(input.protagonist);
   const [location, setLocation] = useState(input.location);
@@ -140,9 +140,10 @@ export default function StoryFormPage() {
     setIsLoading(true);
     setError(null);
 
-    // 입력값 스토어에 저장
+    // 입력값 스토어에 저장 및 캐시 정리
     setInput({ protagonist, location, timeBackground, incident });
     resetImages();
+    clearLocalCache();
 
     try {
       const res = await fetch('/api/generate-story', {
