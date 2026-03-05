@@ -33,7 +33,11 @@ ${story}
 2. [Verse 1] (4~6줄), [Pre-Chorus] (2줄), [Chorus] (4~6줄), [Verse 2] (4~6줄), [Chorus] (반복), [Bridge] (4줄), [Chorus] (반복), [Outro] (2~4줄) 형식을 반드시 지키세요.
 3. 초등학생 아이들이 신나게 따라 부를 수 있고, 리듬감이 느껴지는 의성어와 의태어를 섞어주세요.
 4. 웹툰의 줄거리가 한 편의 서사처럼 느껴지도록 기승전결을 담아주세요.
-5. 반드시 가사 텍스트만 응답하세요.
+5. 반드시 아래 JSON 형태로만 응답하세요. 다른 텍스트나 마크다운 없이 JSON만 출력하세요.
+
+{
+  "lyrics": "[가사 전체 내용 - 각 섹션을 포함하여 충분한 분량으로 작성]"
+}
 
 **작성 예시 (분량 참고):**
 [Verse 1]
@@ -76,7 +80,8 @@ ${story}
             contents: [{ parts: [{ text: prompt }] }],
             generationConfig: {
               temperature: 0.8,
-              maxOutputTokens: 2048,
+              maxOutputTokens: 4096, // 토큰 수 상향
+              responseMimeType: 'application/json', // JSON 모드 강제
             },
           }),
         }
@@ -87,7 +92,17 @@ ${story}
       }
 
       const data = await geminiRes.json();
-      lyrics = data?.candidates?.[0]?.content?.parts?.[0]?.text ?? '';
+      
+      // JSON 모드일 경우 구조화된 데이터에서 추출
+      try {
+        const rawText = data?.candidates?.[0]?.content?.parts?.[0]?.text ?? '';
+        const parsed = JSON.parse(rawText);
+        lyrics = parsed.lyrics ?? '';
+      } catch (e) {
+        // 폴백: JSON 파싱 실패 시 원본 텍스트 사용 시도
+        lyrics = data?.candidates?.[0]?.content?.parts?.[0]?.text ?? '';
+      }
+
 
       if (validateLyrics(lyrics)) {
         break;
