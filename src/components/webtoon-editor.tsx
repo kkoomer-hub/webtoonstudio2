@@ -318,24 +318,50 @@ export default function WebtoonEditor() {
   };
 
   // ── 저장 후 주제가 페이지로 이동 ──────────────────────────
-  const saveAndGoMusic = () => {
+  const saveAndGoMusic = async () => {
     const c = fabricRef.current;
     if (!c) return;
+    
+    setIsSaved(true); // 로딩 상태 시작
     c.discardActiveObject();
     c.renderAll();
 
-    // 캔버스를 PNG dataURL로 변환하여 sessionStorage에 저장
-    const dataURL = c.toDataURL({ format: 'png', quality: 1, multiplier: 1 });
+    // 캔버스를 PNG dataURL로 변환
+    const dataURL = c.toDataURL({ format: 'png', quality: 0.8, multiplier: 1.5 });
+    
     try {
-      sessionStorage.setItem('edited-webtoon', dataURL);
-    } catch {
-      // sessionStorage 용량 초과 시 무시 (base64 이미지는 큼)
-      console.warn('sessionStorage 저장 실패 — 용량 초과');
+      // 서버 API를 통해 Supabase Storage에 업로드
+      const res = await fetch('/api/upload-image', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({
+          image: dataURL,
+          path: `edited/webtoon_${Date.now()}.png`
+        })
+      });
+      
+      const data = await res.json();
+      if (data.url) {
+        // 성공 시 억 단위 base64 대신 짧은 URL 저장
+        const { set } = await import('idb-keyval');
+        await set('edited-webtoon', data.url);
+      } else {
+        throw new Error(data.error || 'Upload failed');
+      }
+    } catch (err) {
+      console.error('Failed to upload edited webtoon:', err);
+      // 실패 시 폴백 (작은 사이즈로 시도하거나 경고)
+      try {
+        const smallDataURL = c.toDataURL({ format: 'png', quality: 0.5, multiplier: 0.6 });
+        const { set } = await import('idb-keyval');
+        await set('edited-webtoon', smallDataURL);
+      } catch (e) {
+        console.error('Final fallback failed:', e);
+      }
     }
 
-    setIsSaved(true);
-    // 0.6초 후 주제가 페이지로 이동
-    setTimeout(() => router.push('/create/story/music'), 600);
+    // 주제가 페이지로 이동
+    router.push('/create/story/music');
   };
 
   // ─────────────────────────────────────────────────────────

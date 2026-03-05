@@ -251,12 +251,11 @@ const WebtoonPreview: React.FC = () => {
   const [editedUrl, setEditedUrl] = useState<string | null>(null);
 
   useEffect(() => {
-    try {
-      const saved = sessionStorage.getItem('edited-webtoon');
-      if (saved) setEditedUrl(saved);
-    } catch {
-      // sessionStorage 접근 실패 시 무시
-    }
+    import('idb-keyval').then(({ get }) => {
+      get('edited-webtoon').then((saved) => {
+        if (saved) setEditedUrl(saved as string);
+      }).catch((e) => console.warn('idb-keyval read error:', e));
+    });
   }, []);
 
   // ── 편집 완성본이 있으면 단일 이미지로 표시 ──
@@ -671,12 +670,14 @@ export default function MusicPage() {
                           if (!user) return;
                           setSaveStatus('saving');
 
-                          // 말풍선 편집 이미지가 있는지 확인
+                          // 말풍선 편집 이미지가 있는지 확인 (IndexedDB에서 가져옴)
                           let editedUrl: string | undefined = undefined;
                           try {
-                            editedUrl = sessionStorage.getItem('edited-webtoon') || undefined;
+                            const { get } = await import('idb-keyval');
+                            const saved = await get('edited-webtoon');
+                            if (saved) editedUrl = saved as string;
                           } catch (e) {
-                            console.warn('sessionStorage edited-webtoon error:', e);
+                            console.warn('idb-keyval read error for save:', e);
                           }
 
                           try {

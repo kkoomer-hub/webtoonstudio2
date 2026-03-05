@@ -1,8 +1,24 @@
 import { create } from 'zustand';
 import { persist, createJSONStorage } from 'zustand/middleware';
+import { get, set, del } from 'idb-keyval';
 import { createClient } from '@/lib/supabase/client';
 import type { StoryPanel } from '@/app/api/generate-story/route';
 import type { PanelImageResult } from '@/lib/image-service';
+
+// =========================================================
+// IndexedDB Storage for Zustand (Bypasses 5MB quota)
+// =========================================================
+const idbStorage = {
+  getItem: async (name: string): Promise<string | null> => {
+    return (await get(name)) || null;
+  },
+  setItem: async (name: string, value: string): Promise<void> => {
+    await set(name, value);
+  },
+  removeItem: async (name: string): Promise<void> => {
+    await del(name);
+  },
+};
 
 // =========================================================
 // Types
@@ -109,7 +125,7 @@ export const useStoryStore = create<StoryState>()(
 
       clearLocalCache: () => {
         try {
-          sessionStorage.removeItem('edited-webtoon');
+          del('edited-webtoon').catch(console.warn);
           // 추가적인 캐시 항목이 있다면 여기서 삭제
         } catch (e) {
           console.warn('[clearLocalCache] Failed:', e);
@@ -262,7 +278,7 @@ export const useStoryStore = create<StoryState>()(
     }),
     {
       name: 'story-session',
-      storage: createJSONStorage(() => sessionStorage),
+      storage: createJSONStorage(() => idbStorage),
       partialize: (state) => ({
         input: state.input,
         panels: state.panels,
