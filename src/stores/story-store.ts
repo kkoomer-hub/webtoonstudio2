@@ -279,10 +279,12 @@ export const useStoryStore = create<StoryState>()(
     {
       name: 'story-session',
       storage: createJSONStorage(() => idbStorage),
+      // panelImages는 persist 제외 — Base64 크기로 인한 용량 초과 방지
+      // 이미지는 생성 페이지에서 React 상태로만 관리되며,
+      // 주제가 페이지는 Supabase URL을 통해 로드함
       partialize: (state) => ({
         input: state.input,
         panels: state.panels,
-        panelImages: state.panelImages,
         sessionId: state.sessionId,
       }),
     }
