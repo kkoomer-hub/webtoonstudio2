@@ -100,6 +100,7 @@ export interface User {
   email: string;
   avatarUrl?: string;
   plan: "free" | "pro" | "enterprise";
+  credits: number;
   joinedAt: string;
 }
 

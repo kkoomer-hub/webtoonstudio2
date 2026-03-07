@@ -442,20 +442,22 @@ export default function DashboardPage() {
             )}
           </Card>
 
-          {/* AI Upgrade Banner */}
+          {/* AI Credit Charge Banner */}
           <div className="relative overflow-hidden rounded-2xl bg-gradient-to-br from-violet-600 to-purple-700 p-5 text-white">
             <div className="absolute top-0 right-0 w-32 h-32 bg-white/10 rounded-full -translate-y-1/2 translate-x-1/2" />
             <Sparkles className="w-8 h-8 mb-3 relative z-10" />
-            <h3 className="font-black text-base mb-1 relative z-10">AI Pro로 업그레이드</h3>
+            <h3 className="font-black text-base mb-1 relative z-10">AI 크레딧 충전</h3>
             <p className="text-violet-200 text-xs mb-4 relative z-10 leading-relaxed">
-              무제한 AI 생성, 고급 편집 도구, 우선 지원을 받으세요.
+              AI 이미지, 스토리, 음악 생성에 필요한 크레딧을 충전하세요.
             </p>
-            <Button
-              className="bg-white text-violet-700 hover:bg-violet-50 font-black w-full rounded-xl relative z-10"
-              size="sm"
-            >
-              지금 업그레이드
-            </Button>
+            <Link href="/payment">
+              <Button
+                className="bg-white text-violet-700 hover:bg-violet-50 font-black w-full rounded-xl relative z-10"
+                size="sm"
+              >
+                크레딧 충전하기
+              </Button>
+            </Link>
           </div>
         </div>
       </main>

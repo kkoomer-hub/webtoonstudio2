@@ -25,6 +25,8 @@ import {
   Zap,
   Home,
   Wand2,
+  CreditCard,
+  Coins,
 } from 'lucide-react';
 
 // =========================================================
@@ -35,6 +37,7 @@ const NAV_LINKS = [
   { href: '/explore', label: '📚 웹툰 보기', icon: TrendingUp },
   { href: '/create/story', label: '✨ 이야기 만들기', icon: Wand2 },
   { href: '/myworks', label: '📊 내 작품', icon: LayoutDashboard },
+  { href: '/payment', label: '💎 요금제', icon: CreditCard },
 ];
 
 export const GlobalHeader: React.FC = () => {
@@ -165,30 +168,42 @@ export const GlobalHeader: React.FC = () => {
             )}
           </div>
 
-          {/* User Menu */}
+          {/* Credit Badge + User Menu */}
           {currentUser ? (
-            <div className="relative">
-              <button
-                id="user-menu-btn"
-                onClick={() => setUserMenuOpen(!userMenuOpen)}
-                className="flex items-center gap-2 pl-1 pr-2 py-1 rounded-xl hover:bg-gray-100 transition-all"
-              >
-                <Avatar
-                  src={currentUser.avatarUrl}
-                  name={currentUser.name}
-                  size="sm"
-                />
-                <ChevronDown className="w-3.5 h-3.5 text-gray-400 hidden sm:block" />
-              </button>
+            <>
+              <Link href="/payment">
+                <Tooltip label="AI 크레딧">
+                  <div className="hidden sm:flex items-center gap-1.5 px-3 py-1.5 rounded-xl bg-gradient-to-r from-amber-50 to-orange-50 border border-amber-200 hover:border-amber-300 transition-all cursor-pointer">
+                    <Coins className="w-4 h-4 text-amber-500" />
+                    <span className="text-sm font-black text-amber-700">
+                      {currentUser.credits?.toLocaleString() ?? 0}
+                    </span>
+                  </div>
+                </Tooltip>
+              </Link>
+              <div className="relative">
+                <button
+                  id="user-menu-btn"
+                  onClick={() => setUserMenuOpen(!userMenuOpen)}
+                  className="flex items-center gap-2 pl-1 pr-2 py-1 rounded-xl hover:bg-gray-100 transition-all"
+                >
+                  <Avatar
+                    src={currentUser.avatarUrl}
+                    name={currentUser.name}
+                    size="sm"
+                  />
+                  <ChevronDown className="w-3.5 h-3.5 text-gray-400 hidden sm:block" />
+                </button>
 
-              {userMenuOpen && (
-                <UserMenu
-                  user={currentUser}
-                  onClose={() => setUserMenuOpen(false)}
-                  onSignOut={signOut}
-                />
-              )}
-            </div>
+                {userMenuOpen && (
+                  <UserMenu
+                    user={currentUser}
+                    onClose={() => setUserMenuOpen(false)}
+                    onSignOut={signOut}
+                  />
+                )}
+              </div>
+            </>
           ) : !authLoading ? (
             <Link href="/login">
               <button className="flex items-center gap-1.5 px-4 py-2 rounded-xl bg-indigo-600 text-white text-sm font-bold hover:bg-indigo-700 transition-all">
@@ -318,7 +333,7 @@ const NotificationPanel: React.FC<NotificationPanelProps> = ({
 // UserMenu - 사용자 드롭다운 메뉴
 // =========================================================
 interface UserMenuProps {
-  user: { name: string; email: string; plan: string; avatarUrl?: string };
+  user: { name: string; email: string; plan: string; credits?: number; avatarUrl?: string };
   onClose: () => void;
   onSignOut?: () => void;
 }
@@ -334,11 +349,12 @@ const UserMenu: React.FC<UserMenuProps> = ({ user, onClose, onSignOut }) => {
     { icon: LayoutDashboard, label: '대시보드', href: '/dashboard' },
     { icon: BookOpen, label: '내 작품', href: '/myworks' },
     { icon: Heart, label: '즐겨찾기', href: '/favorites' },
+    { icon: CreditCard, label: '크레딧 충전', href: '/payment' },
     { icon: Settings, label: '설정', href: '/settings' },
   ];
 
   return (
-    <div className="absolute top-12 right-0 w-56 bg-white rounded-2xl shadow-2xl border border-gray-100 overflow-hidden z-50">
+    <div className="absolute top-12 right-0 w-64 bg-white rounded-2xl shadow-2xl border border-gray-100 overflow-hidden z-50">
       {/* User Info */}
       <div className="px-4 py-3 border-b border-gray-100">
         <div className="flex items-center gap-2.5">
@@ -348,10 +364,30 @@ const UserMenu: React.FC<UserMenuProps> = ({ user, onClose, onSignOut }) => {
             <p className="text-xs text-gray-400 truncate">{user.email}</p>
           </div>
         </div>
-        <div className="mt-2">
+        <div className="mt-2 flex items-center gap-2">
           <Badge variant="pro">{PLAN_LABELS[user.plan] || user.plan}</Badge>
         </div>
       </div>
+
+      {/* Credit Balance */}
+      <Link href="/payment" onClick={onClose}>
+        <div className="mx-3 my-2 flex items-center justify-between p-3 rounded-xl bg-gradient-to-r from-amber-50 to-orange-50 border border-amber-200 hover:border-amber-300 transition-all cursor-pointer">
+          <div className="flex items-center gap-2">
+            <div className="w-8 h-8 rounded-lg bg-gradient-to-br from-amber-400 to-orange-500 flex items-center justify-center">
+              <Coins className="w-4 h-4 text-white" />
+            </div>
+            <div>
+              <p className="text-xs text-amber-600 font-semibold">AI 크레딧</p>
+              <p className="text-base font-black text-amber-800">
+                {user.credits?.toLocaleString() ?? 0}
+              </p>
+            </div>
+          </div>
+          <span className="text-xs font-bold text-amber-600 bg-amber-100 px-2 py-1 rounded-lg">
+            충전
+          </span>
+        </div>
+      </Link>
 
       {/* Menu Items */}
       <div className="py-1">

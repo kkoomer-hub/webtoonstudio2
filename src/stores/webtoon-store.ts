@@ -39,6 +39,7 @@ interface WebtoonState {
   updateProject: (projectId: string, updates: Partial<StudioProject>) => void;
   markNotificationRead: (notificationId: string) => void;
   setCurrentUserFromAuth: (authUser: { id: string; email?: string; user_metadata?: Record<string, string> } | null) => void;
+  fetchUserCredits: () => Promise<void>;
 
   // Actions - UI
   setActiveTab: (tab: SidebarTab) => void;
@@ -149,21 +150,72 @@ export const useWebtoonStore = create<WebtoonState>()(
       },
 
       // ── Auth → User 매핑 ────────────────────────────
-      setCurrentUserFromAuth: (authUser) => {
+      setCurrentUserFromAuth: async (authUser) => {
         if (!authUser) {
           set({ currentUser: null });
           return;
         }
-        set({
-          currentUser: {
-            id: authUser.id,
-            name: authUser.user_metadata?.full_name ?? authUser.user_metadata?.name ?? authUser.email?.split('@')[0] ?? '사용자',
-            email: authUser.email ?? '',
-            avatarUrl: authUser.user_metadata?.avatar_url,
-            plan: 'free',
-            joinedAt: new Date().toISOString(),
-          },
-        });
+
+        // 기본값으로 먼저 세팅
+        const defaultUser = {
+          id: authUser.id,
+          name: authUser.user_metadata?.full_name ?? authUser.user_metadata?.name ?? authUser.email?.split('@')[0] ?? '사용자',
+          email: authUser.email ?? '',
+          avatarUrl: authUser.user_metadata?.avatar_url,
+          plan: 'free' as const,
+          credits: 30,
+          joinedAt: new Date().toISOString(),
+        };
+        set({ currentUser: defaultUser });
+
+        // DB에서 실제 plan, credits 가져오기
+        try {
+          const supabase = createClient();
+          const { data } = await supabase
+            .from('users')
+            .select('plan, credits')
+            .eq('id', authUser.id)
+            .single();
+
+          if (data) {
+            set({
+              currentUser: {
+                ...defaultUser,
+                plan: (data.plan as 'free' | 'pro' | 'enterprise') ?? 'free',
+                credits: data.credits ?? 30,
+              },
+            });
+          }
+        } catch (err) {
+          console.error('[fetchUserCredits]', err);
+        }
+      },
+
+      // ── 크레딧 새로고침 ──────────────────────────────
+      fetchUserCredits: async () => {
+        const currentUser = get().currentUser;
+        if (!currentUser) return;
+
+        try {
+          const supabase = createClient();
+          const { data } = await supabase
+            .from('users')
+            .select('credits, plan')
+            .eq('id', currentUser.id)
+            .single();
+
+          if (data) {
+            set({
+              currentUser: {
+                ...currentUser,
+                credits: data.credits ?? 0,
+                plan: (data.plan as 'free' | 'pro' | 'enterprise') ?? currentUser.plan,
+              },
+            });
+          }
+        } catch (err) {
+          console.error('[fetchUserCredits]', err);
+        }
       },
 
       // Actions - Data
