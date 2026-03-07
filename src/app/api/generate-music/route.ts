@@ -1,4 +1,5 @@
 import { NextRequest, NextResponse } from 'next/server';
+import { deductCredits } from '@/lib/credits';
 
 // =========================================================
 // Types
@@ -43,6 +44,15 @@ export async function POST(request: NextRequest) {
   try {
     const body: GenerateMusicRequest = await request.json();
     const { genre, lyrics, title } = body;
+
+    // 크레딧 차감 (5 크레딧)
+    const creditResult = await deductCredits('generate-music');
+    if (!creditResult.success) {
+      return NextResponse.json(
+        { error: creditResult.error, remainingCredits: creditResult.remainingCredits },
+        { status: creditResult.error?.includes('로그인') ? 401 : 402 }
+      );
+    }
 
     const rawApiKey = process.env.KIE_SUNO_API_KEY;
     const apiKey = rawApiKey ? rawApiKey.replace(/['"]/g, '').trim() : '';

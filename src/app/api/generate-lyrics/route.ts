@@ -1,4 +1,5 @@
 import { NextRequest, NextResponse } from 'next/server';
+import { deductCredits } from '@/lib/credits';
 
 export interface LyricsGenerationRequest {
   protagonist: string;
@@ -11,6 +12,15 @@ export async function POST(request: NextRequest) {
   try {
     const body: LyricsGenerationRequest = await request.json();
     const { protagonist, location, incident, story } = body;
+
+    // 크레딧 차감 (2 크레딧)
+    const creditResult = await deductCredits('generate-lyrics');
+    if (!creditResult.success) {
+      return NextResponse.json(
+        { error: creditResult.error, remainingCredits: creditResult.remainingCredits },
+        { status: creditResult.error?.includes('로그인') ? 401 : 402 }
+      );
+    }
 
     const apiKey = process.env.GEMINI_API_KEY;
     if (!apiKey || apiKey === 'your_gemini_api_key_here') {

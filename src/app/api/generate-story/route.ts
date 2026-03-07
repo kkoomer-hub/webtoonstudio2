@@ -1,4 +1,5 @@
 import { NextRequest, NextResponse } from 'next/server';
+import { deductCredits } from '@/lib/credits';
 
 // =========================================================
 // Types
@@ -33,6 +34,15 @@ export async function POST(request: NextRequest) {
       return NextResponse.json(
         { error: '모든 필드를 입력해주세요.' },
         { status: 400 }
+      );
+    }
+
+    // 크레딧 차감 (3 크레딧)
+    const creditResult = await deductCredits('generate-story');
+    if (!creditResult.success) {
+      return NextResponse.json(
+        { error: creditResult.error, remainingCredits: creditResult.remainingCredits },
+        { status: creditResult.error?.includes('로그인') ? 401 : 402 }
       );
     }
 

@@ -6,6 +6,7 @@ import {
   type StoryMeta,
 } from '@/lib/image-service';
 import { uploadBase64Image } from '@/lib/supabase/storage';
+import { deductCredits } from '@/lib/credits';
 
 // =========================================================
 // Types
@@ -60,6 +61,16 @@ export async function POST(request: NextRequest) {
 
     if (!prompts || !Array.isArray(prompts) || prompts.length === 0) {
       return NextResponse.json({ error: '프롬프트가 없습니다.' }, { status: 400 });
+    }
+
+    // 크레딧 차감 (전체 생성: 5, 개별 재생성: 2)
+    const action = (panelIndex !== undefined && panelIndex >= 0) ? 'generate-images-single' : 'generate-images';
+    const creditResult = await deductCredits(action);
+    if (!creditResult.success) {
+      return NextResponse.json(
+        { error: creditResult.error, remainingCredits: creditResult.remainingCredits },
+        { status: creditResult.error?.includes('로그인') ? 401 : 402 }
+      );
     }
 
     const apiKey = process.env.GEMINI_API_KEY;
