@@ -13,6 +13,18 @@ type PlanKey = keyof typeof CREDIT_PLANS;
 
 export async function POST(request: NextRequest) {
   try {
+    // 환경변수 확인
+    if (!process.env.NEXT_PUBLIC_SUPABASE_URL || !process.env.SUPABASE_SERVICE_ROLE_KEY) {
+      console.error("Missing Supabase env vars:", {
+        url: !!process.env.NEXT_PUBLIC_SUPABASE_URL,
+        serviceKey: !!process.env.SUPABASE_SERVICE_ROLE_KEY,
+      });
+      return NextResponse.json(
+        { error: "서버 설정이 올바르지 않습니다. 관리자에게 문의하세요." },
+        { status: 500 }
+      );
+    }
+
     const body = await request.json();
     const { planId } = body as { planId: PlanKey };
 
@@ -31,8 +43,15 @@ export async function POST(request: NextRequest) {
       data: { user },
     } = await supabase.auth.getUser();
 
+    if (!user) {
+      return NextResponse.json(
+        { error: "로그인이 필요합니다." },
+        { status: 401 }
+      );
+    }
+
     const { error } = await supabase.from("payments").insert({
-      user_id: user?.id ?? null,
+      user_id: user.id,
       order_id: orderId,
       order_name: `AI 크레딧 충전 - ${plan.name}`,
       amount: plan.amount,
@@ -41,9 +60,9 @@ export async function POST(request: NextRequest) {
     });
 
     if (error) {
-      console.error("Payment prepare error:", error);
+      console.error("Payment insert error:", error.message, error.details, error.hint);
       return NextResponse.json(
-        { error: "주문 생성에 실패했습니다." },
+        { error: `주문 생성에 실패했습니다: ${error.message}` },
         { status: 500 }
       );
     }
@@ -55,10 +74,11 @@ export async function POST(request: NextRequest) {
       credits: plan.credits,
     });
   } catch (err) {
-    console.error("Payment prepare error:", err);
+    console.error("Payment prepare catch error:", err);
     return NextResponse.json(
       { error: "서버 오류가 발생했습니다." },
       { status: 500 }
     );
   }
 }
+
