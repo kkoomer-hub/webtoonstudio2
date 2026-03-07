@@ -1,6 +1,6 @@
 'use client';
 
-import React, { useState } from 'react';
+import React, { useState, useEffect } from 'react';
 import { useRouter } from 'next/navigation';
 import { motion, AnimatePresence } from 'framer-motion';
 import {
@@ -10,6 +10,7 @@ import {
 import { GlobalHeader } from '@/components/layout/header';
 import { Button, Card } from '@/components/ui-primitives';
 import { useStoryStore } from '@/stores/story-store';
+import { CreditWarningBanner } from '@/components/credit-warning';
 import type { StoryGenerationResponse } from '@/app/api/generate-story/route';
 
 // =========================================================
@@ -123,9 +124,14 @@ export default function StoryFormPage() {
   const [incident, setIncident] = useState(input.incident);
   const [isLoading, setIsLoading] = useState(false);
   const [error, setError] = useState<string | null>(null);
+  const [userCredits, setUserCredits] = useState<number | null>(null);
 
   const isFormValid =
     protagonist.trim() && location.trim() && timeBackground.trim() && incident.trim();
+
+  useEffect(() => {
+    fetch('/api/credits').then(r => r.json()).then(d => setUserCredits(d.credits)).catch(() => {});
+  }, []);
 
   const applyExample = (ex: (typeof EXAMPLES)[0]) => {
     setProtagonist(ex.protagonist);
@@ -151,10 +157,18 @@ export default function StoryFormPage() {
         headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify({ protagonist, location, timeBackground, incident }),
       });
-      const data: StoryGenerationResponse & { error?: string } = await res.json();
+      const data: StoryGenerationResponse & { error?: string; remainingCredits?: number } = await res.json();
+
+      if (res.status === 402) {
+        setUserCredits(data.remainingCredits ?? 0);
+        setError(data.error || '크레딧이 부족합니다.');
+        setIsLoading(false);
+        return;
+      }
+
       if (!res.ok || data.error) throw new Error(data.error || '이야기 생성에 실패했습니다.');
 
-      // 패널 스토어에 저장 후 result 페이지로 이동
+      setUserCredits(prev => (prev !== null ? prev - 3 : null));
       setPanels(data.webtoon);
       router.push('/create/story/result');
     } catch (err) {
@@ -232,12 +246,21 @@ export default function StoryFormPage() {
                   hint="이야기에서 가장 중요한 사건을 써주세요!"
                   value={incident} onChange={setIncident} multiline rows={4} />
 
+                {userCredits !== null && (
+                  <CreditWarningBanner
+                    currentCredits={userCredits}
+                    requiredCredits={3}
+                    actionName="이야기 생성"
+                    variant="light"
+                  />
+                )}
+
                 <Button id="generate-story-btn" variant="primary" size="lg"
                   onClick={handleGenerate}
-                  disabled={!isFormValid}
+                  disabled={!isFormValid || (userCredits !== null && userCredits < 3)}
                   rightIcon={<Sparkles className="w-5 h-5" />}
                   className="w-full h-14 text-base font-black rounded-2xl shadow-xl shadow-indigo-200 disabled:shadow-none">
-                  ✨ 웹툰 이야기 만들기!
+                  ✨ 웹툰 이야기 만들기! (3 크레딧)
                 </Button>
 
                 {!isFormValid && (

@@ -9,6 +9,7 @@ import {
 import { GlobalHeader } from '@/components/layout/header';
 import { Button } from '@/components/ui-primitives';
 import { useStoryStore } from '@/stores/story-store';
+import { CreditWarningBanner } from '@/components/credit-warning';
 import type { PanelImageResult } from '@/lib/image-service';
 import { validateImageFit } from '@/lib/image-validator';
 
@@ -190,6 +191,12 @@ export default function StoryImagesPage() {
 
   const [hasStarted, setHasStarted] = useState(false);
   const [isTransitioning, setIsTransitioning] = useState(false);
+  const [userCredits, setUserCredits] = useState<number | null>(null);
+  const [creditError, setCreditError] = useState<string | null>(null);
+
+  useEffect(() => {
+    fetch('/api/credits').then(r => r.json()).then(d => setUserCredits(d.credits)).catch(() => {});
+  }, []);
 
   // 패널이 없으면 결과 페이지로 리다이렉트
   useEffect(() => {
@@ -236,9 +243,15 @@ export default function StoryImagesPage() {
           headers: { 'Content-Type': 'application/json' },
           body: JSON.stringify(body),
         });
-        const data: { images: PanelImageResult[]; error?: string } = await res.json();
+        const data: { images: PanelImageResult[]; error?: string; remainingCredits?: number } = await res.json();
 
+        if (res.status === 402) {
+          setUserCredits(data.remainingCredits ?? 0);
+          setCreditError(data.error || '크레딧이 부족합니다.');
+          throw new Error(data.error || '크레딧이 부족합니다.');
+        }
         if (!res.ok || data.error) throw new Error(data.error || '이미지 생성 실패');
+        setUserCredits(prev => (prev !== null ? prev - 2 : null));
 
         const result = data.images[0];
         if (result && result.imageUrl) {
@@ -283,8 +296,14 @@ export default function StoryImagesPage() {
           storyInput: { protagonist: input.protagonist, location: input.location },
         }),
       });
-      const data: { images: PanelImageResult[]; error?: string } = await res.json();
+      const data: { images: PanelImageResult[]; error?: string; remainingCredits?: number } = await res.json();
+      if (res.status === 402) {
+        setUserCredits(data.remainingCredits ?? 0);
+        setCreditError(data.error || '크레딧이 부족합니다.');
+        throw new Error(data.error || '크레딧이 부족합니다.');
+      }
       if (!res.ok || data.error) throw new Error(data.error || '이미지 생성 실패');
+      setUserCredits(prev => (prev !== null ? prev - 2 : null));
       
       // 이미지 수정 시 이전 편집본(캐시) 강제 삭제
       clearLocalCache();
@@ -348,6 +367,16 @@ export default function StoryImagesPage() {
       </section>
 
       <main className="max-w-5xl mx-auto px-4 py-10 space-y-8">
+
+        {/* 크레딧 부족 경고 */}
+        {creditError && userCredits !== null && (
+          <CreditWarningBanner
+            currentCredits={userCredits}
+            requiredCredits={2}
+            actionName="이미지 생성"
+            variant="light"
+          />
+        )}
 
         {/* 2×2 이미지 그리드 */}
         <div className="grid grid-cols-1 md:grid-cols-2 gap-5">

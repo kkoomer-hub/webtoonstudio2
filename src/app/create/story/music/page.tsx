@@ -12,6 +12,7 @@ import {
 import { GlobalHeader } from '@/components/layout/header';
 import { useStoryStore } from '@/stores/story-store';
 import { useAuth } from '@/hooks/use-auth';
+import { CreditWarningBanner } from '@/components/credit-warning';
 import type { Genre, GenerateMusicRequest, MusicTask, MusicStatusResponse } from '@/app/api/generate-music/route';
 
 // =========================================================
@@ -328,7 +329,12 @@ export default function MusicPage() {
   const [saveStatus, setSaveStatus] = useState<'idle' | 'saving' | 'saved' | 'error'>('idle');
   const [savedId, setSavedId] = useState<string | null>(null);
   const [isLyricsGenerating, setIsLyricsGenerating] = useState(false);
+  const [userCredits, setUserCredits] = useState<number | null>(null);
   const pollingRef = useRef<ReturnType<typeof setInterval> | null>(null);
+
+  useEffect(() => {
+    fetch('/api/credits').then(r => r.json()).then(d => setUserCredits(d.credits)).catch(() => {});
+  }, []);
 
   // ── 가사 생성 AI 호출 ──
   const handleGenerateLyrics = useCallback(async () => {
@@ -347,8 +353,16 @@ export default function MusicPage() {
         }),
       });
       const data = await res.json();
+
+      if (res.status === 402) {
+        setUserCredits(data.remainingCredits ?? 0);
+        setErrorMsg(data.error || '크레딧이 부족합니다.');
+        return;
+      }
+
       if (data.lyrics) {
         setLyrics(data.lyrics);
+        setUserCredits(prev => (prev !== null ? prev - 2 : null));
       }
     } catch (error) {
       console.error('Lyrics generation failed:', error);
@@ -391,8 +405,17 @@ export default function MusicPage() {
         headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify(body),
       });
-      const task: MusicTask & { error?: string } = await res.json();
+      const task: MusicTask & { error?: string; remainingCredits?: number } = await res.json();
+
+      if (res.status === 402) {
+        setUserCredits(task.remainingCredits ?? 0);
+        setErrorMsg(task.error || '크레딧이 부족합니다.');
+        setMusicStatus('error');
+        return;
+      }
+
       if (task.error) throw new Error(task.error);
+      setUserCredits(prev => (prev !== null ? prev - 5 : null));
 
       // 데모 모드 — 즉시 URL 설정
       if (task.type === 'demo') {
@@ -595,11 +618,21 @@ export default function MusicPage() {
               </div>
             </div>
 
+            {/* 크레딧 부족 경고 */}
+            {userCredits !== null && userCredits < 5 && (
+              <CreditWarningBanner
+                currentCredits={userCredits}
+                requiredCredits={userCredits < 2 ? 2 : 5}
+                actionName={userCredits < 2 ? '가사 생성' : '음악 생성'}
+                variant="dark"
+              />
+            )}
+
             {/* 생성 버튼 */}
             <button
               id="generate-music-btn"
               onClick={handleGenerate}
-              disabled={musicStatus === 'loading' || musicStatus === 'polling' || !lyrics.trim()}
+              disabled={musicStatus === 'loading' || musicStatus === 'polling' || !lyrics.trim() || (userCredits !== null && userCredits < 5)}
               className={`w-full h-14 rounded-2xl font-black text-base flex items-center justify-center gap-2 transition-all
                 ${musicStatus === 'loading' || musicStatus === 'polling'
                   ? 'bg-yellow-400/20 text-yellow-400 cursor-not-allowed'
@@ -609,7 +642,7 @@ export default function MusicPage() {
               {musicStatus === 'loading' && <><Loader2 className="w-5 h-5 animate-spin" /> 작곡 요청 중...</>}
               {musicStatus === 'polling' && <><Loader2 className="w-5 h-5 animate-spin" /> AI가 작곡하는 중... (최대 2분)</>}
               {(musicStatus === 'idle' || musicStatus === 'done' || musicStatus === 'error') && (
-                <><Sparkles className="w-5 h-5" /> 🎵 주제가 작곡하기!</>
+                <><Sparkles className="w-5 h-5" /> 🎵 주제가 작곡하기! (5 크레딧)</>
               )}
             </button>
 
